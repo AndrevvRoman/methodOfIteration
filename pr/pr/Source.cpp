@@ -6,13 +6,15 @@ using namespace std;
 using namespace sf;
 
 const int ResX = 800, ResY = 600;
-double scale = 1;
+ double n = 25;//плотность кривой;
+ double h = 25;//высота кривой
+const double d = 0.05; //плотность точек
 
 void draw_coord(RenderWindow &window)
 {
 	RectangleShape x, y;
-	x.setSize(Vector2f(1000, 3));
-	y.setSize(Vector2f(1000, 3));
+	x.setSize(Vector2f(1000, 1.5));
+	y.setSize(Vector2f(1000, 1.5));
 	x.setFillColor(Color::Yellow);
 	y.setFillColor(Color::Cyan);
 
@@ -36,25 +38,72 @@ double centerY(double y)
 
 double funcX(double x)
 {
-	return 3*pow(x,5) + 29*pow(x,2) + x - 32 ;
+	return pow(x,2)+ 2*x - 3;
+}
+
+double r_funcX(double x)
+{
+	return (pow(x, 2) - 3) / (-2);
+}
+
+void draw_point(RenderWindow &window,double x)
+{
+	CircleShape circle;
+	circle.setRadius(0.05*n);
+	circle.setFillColor(Color::Red);
+	circle.setPosition(Vector2f(centerX(x*n), centerY(-h*0)));
+	window.draw(circle);
+}
+
+void draw_line(RenderWindow &window,double x1 ,double x2)
+{
+	VertexArray line(Lines, 2);
+	line[0].color = Color::Red;
+	line[1].color = Color::Red;
+	cout << centerX(x1*n) << " " << -h * centerY(-x2) << endl;
+	cout << centerX(x2*n) << " " << -h*centerY(x2) << endl;
+	for (int i = 0; i < 4; i++)
+	{
+		line[0].position = Vector2f(centerX(i*n), centerY(-h * funcX(i)));
+		line[1].position = Vector2f(centerX(-n*i), centerY(-h * funcX(-i)));
+		window.draw(line);
+		x1 = x1 - 1;
+		x2 = x2 - 1;
+	}
+
 }
 
 void draw_graph(RenderWindow &window)
 {
 	int sizeOfArray = 2000;
-	VertexArray point(Points, sizeOfArray);
-	double x = 0.0;
-	double n = 1;//плотность кривой;
-	double h = 10;//высота кривой
-	double d = 0.005; //плотность точек
+	VertexArray point(LinesStrip, sizeOfArray);
+	double x = -7.0;
+	cout << "n= "<< n << " h=" << h << "d=" << d << endl;
 	for (int i = 0; i < sizeOfArray; i++)
 	{
-		point[i].position = Vector2f(centerX(i*n),  centerY(- h * funcX(x)));
+		point[i].position = Vector2f(centerX(x*n),  centerY(- h * funcX(x)));
+		//cout << centerX(x*n) << " " << -h * centerY(-x) << endl;
 		int clr = (i < 256 ? i : i % 255);
 		point[i].color = Color::White;
 		x += d;
+		if (i % 100 == 0) draw_point(window, x);
 	}
 	window.draw(point);
+		//draw_line(window, 5, -5);
+	x = -7.0;
+	cout << "n= " << n << " h=" << h << "d=" << d << endl;
+	for (int i = 0; i < sizeOfArray; i++)
+	{
+		point[i].position = Vector2f(centerX(x*n), centerY(-h * r_funcX(x)));
+		//cout << centerX(x*n) << " " << -h * centerY(-x) << endl;
+		int clr = (i < 256 ? i : i % 255);
+		point[i].color = Color::Cyan;
+		x += d;
+	}
+	window.draw(point);
+	
+
+	
 }
 
 int main()
@@ -68,11 +117,14 @@ int main()
 			if (event.type == Event::Closed)
 				window.close();
 		}
+
+
 		window.clear();
 		draw_coord(window);
 		draw_graph(window);
 		window.display();
-	//	cin >> scale;
+		cin >> n;
+		h = n;
 	}
 	return 0;
 }
