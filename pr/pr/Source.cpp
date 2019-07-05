@@ -116,6 +116,17 @@ int main()
 		{
 			if (event.type == Event::Closed)
 				window.close();
+			if (Keyboard::isKeyPressed(Keyboard::PageDown))
+			{
+				n /= 1.5;
+				h = n;
+			}
+			if (Keyboard::isKeyPressed(Keyboard::PageUp))
+			{
+				n *= 1.5;
+				h = n;
+			}
+
 		}
 
 
@@ -123,8 +134,6 @@ int main()
 		draw_coord(window);
 		draw_graph(window);
 		window.display();
-		cin >> n;
-		h = n;
 	}
 	return 0;
 }
